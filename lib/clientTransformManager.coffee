@@ -1,0 +1,127 @@
+netClient = require './socketClient'
+events = require 'events'
+types = require './types'
+State = require './state'
+
+module.exports =
+  class ClientTransformManager extends events.EventEmitter
+    initialized:  false
+    net:          undefined
+    id:           undefined
+    clients:      undefined
+    notAcked:     []
+    history:      undefined
+    state:        undefined
+    username:     undefined
+    color:        undefined
+
+    constructor: (@host, @username, @color) ->
+      @net = new netClient @host
+
+      # TODO outsource this to types
+      @net.on types.connected,    @connectedToServer
+      @net.on 'transform',        @handleTransform
+      @net.on 'error',            @handleError
+      @net.on 'end',              @handleEnd
+      @net.on 'serverDown',       @handleServerDown
+
+    connectedToServer: =>
+      @sendToServer
+        type:     types.connecting
+        username: @username
+        color:    @color
+
+    sendToServer: (transform) =>
+      @state.inc @id if @state? and transform.type isnt types.connect
+      transform.id = @id
+      @notAcked.push transform if @state? and transform.type isnt types.connect
+      transform.state = @state.list if @state?
+      @net.send transform
+
+    #TODO clientDisconnected + handleConflicts
+    handleTransform: (transform) =>
+      transform.state = new State transform.state
+      switch transform.type
+        when types.updateCursor
+          @updateCursor transform
+        when types.textChange
+          @changeText transform
+        when types.selectionChanged
+          @changeSelection transform
+        when types.clientConnected
+          @newClient transform
+        when types.clientDisconnected
+          @clientLeft transform
+        when types.initialize
+          @initialize transform
+        when types.acknowledge
+          @acknowledge transform
+
+    handleError: (err) =>
+      @emit 'error', err
+
+    handleEnd: =>
+      @emit 'end'
+
+    handleServerDown: ->
+      #TODO implement + fat arrow
+
+    initialize: (transform) =>
+      @emit types.clear
+      @id       = transform.clientId
+      @clients  = transform.clients
+      @state    = transform.state
+      @history  = transform.history
+      @handleTransform t for t in @history
+      for client in @clients
+        @emit types.newUser,
+          clientId: client.id
+          color:    client.color
+      initialized = true
+      @emit types.initialized
+
+    acknowledge: (ack) =>
+      toRemove = []
+      for t in @notAcked
+        st = new State t.state
+        if st.happendBefore ack.state
+          toRemove.push t
+      for t in toRemove
+        index = @notAcked.indexOf(t)
+        @notAcked.splice(index, 1) unless index is -1
+        @history.push t
+
+    textChanged: (transform) ->
+      @sendToServer transform
+
+    cursorChanged: (transform) ->
+      @sendToServer transform
+
+    selectionChanged: (transform) ->
+      @sendToServer transform
+
+    changeText: (transform) ->
+      @state.set transform.id, transform.state.get transform.id
+      @emit types.textChange, transform
+
+    updateCursor: (transform) ->
+      @emit types.updateCursor, transform
+
+    changeSelection: (transform) ->
+      @emit types.selectionChanged, transform
+
+    newClient: (transform) ->
+      @clients.push transform.client
+      @state.add transform.client.id
+      @emit types.newUser,
+        clientId:   transform.client.id
+        color:      transform.client.color
+
+    clientLeft: (transform) ->
+      console.log "Client left"
+      for c in @clients
+        if c.id is transform.clientId
+          i = @clients.indexOf(c)
+      @clients.splice(i, 1) unless i is -1
+      @emit types.userLeft,
+        clientId: transform.client.id
