@@ -1,5 +1,10 @@
+clientTM = require './lib/clientTransformManager'
+serverTM = require './lib/serverTransformManager'
+
 module.export =
 
-  server: ->
+  createServer: ->
+    new serverTM false, port
 
-  client: ->
+  createClient: (url, name, color) ->
+    new clientTM url, name, color
