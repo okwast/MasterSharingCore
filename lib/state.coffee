@@ -4,62 +4,56 @@ module.exports =
 
     constructor: (list) ->
       if list?
-        @list = list
+        @list = list.slice()
       else
         @list = []
 
     add: (id) =>
-      console.log "list"
-      console.log @list
-      console.log typeof @list
-      @list.push
-        id:    id
-        state: 0
+      @list[id] = 0
 
     remove: (id) =>
-      for i in [0...@list.length]
-        if list[i].id is id
-          n = i
-          break
-      @list.splice n, 1 if n?
+      @list[id] = 0
 
     inc: (id) =>
-      s.state++ for s in @list when s.id is id
+      @list[id]++
 
     get: (id) =>
-      return s.state for s in @list when s.id is id
+      @list[id]
 
     set: (id, state) =>
-      s.state = state for s in @list when s.id is id
+      @list[id] = state
 
-    happendBefore: (state) =>
-      i = j = 0
+    conflictingWith: (state, id) =>
       list2 = state.list
-      res = true
-      while i < @list.length and j < list2.length
-        switch
-          when @list[i].id < list2[j].id
-            i++
-          when @list[i].id > list2[j].id
-            j++
+      return true if @list.length isnt list2.length
+      for i in [0...@list.length]
+        if i is id
+          return true if !(@list[i]? and list2[i]?)
+          return true if @list[i] < list2[i]
+        else
+          if @list[i]? and list2[i]?
+            return true if @list[i] < list2[i]
           else
-            if @list[i].state > list2[j].state
-              res = false
-            i++
-            j++
-      # console.log "happendBefore"
-      # console.log @list
-      # console.log list2
-      # console.log res
-      return res
+            return true if @list[i]? or list2[i]?
+      return false
+
+    directFollowerOf: (state, id) ->
+      list2 = state.list
+      return false if @list.length isnt list2.length
+      for i in [0...@list.length]
+        if i is id
+          return false if !(@list[i]? and list2[i]?)
+          return false if (@list[i] - 1) isnt list2[i]
+        else
+          if @list[i]? and list2[i]?
+            return false if @list[i] isnt list2[i]
+          else
+            return false if @list[i]? or list2[i]?
+      return true
 
     equals: (state) =>
       list2 = state.list
       return false if @list.length isnt list2.length
       for i in [0...@list.length]
-        if @list[i].id isnt list2[i].id
-          return false
-        else
-          if @list[i].state isnt list2[i].state
-            return false
+        return false if @list[i] isnt list2[i]
       return true

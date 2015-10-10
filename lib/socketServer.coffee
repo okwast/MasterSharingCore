@@ -11,7 +11,6 @@ module.exports =
     io:         undefined
     clientId:   0
     port:       undefined
-    netData:    ""
     sockets:    []
 
     constructor: (@port) ->
@@ -72,21 +71,7 @@ module.exports =
 
     sendToAllClients: (sockets, data) =>
       @sendToClient socket, data for socket in sockets
-      # console.log "sendToAllClients"
-      # console.log @sockets
-      # for s in @sockets
-      #   console.log "Jetzt wird gesendet"
-      #   console.log s
-      #   console.log data
-      #   s.emit data.type, data
 
     sendToOtherClients: (sockets, socket, data) =>
       @sendToClient s, data for s in sockets when s isnt socket
-      # console.log "sendToOtherClients"
-      # console.log @sockets
-      # for s in @sockets
-      #   console.log "Jetzt wird gesendet"
-      #   console.log s
-      #   console.log data
-      #   s.emit data.type, data
 
