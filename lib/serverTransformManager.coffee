@@ -14,22 +14,16 @@ module.exports =
     state:            undefined
     history:          []
 
-    constructor: (@standalone, port) ->
+    constructor: (port) ->
       @server           = new netServer port
       @conflictManager  = new conflictManager()
       @state            = new State()
 
-      if @standalone
-        @server.on  'initial',              @initial
-      else
-        @server.on  'initial',              @clientConnected
+      @server.on    'initial',              @clientConnected
       @server.on    'clientConnected',      @clientConnected
       @server.on    'clientDisconnected',   @clientDisconnected
       @server.on    'transform',            @transformRecieved
       @server.on    'error',                console.log
-
-    initial: (client) ->
-      # console.log "Initial"
 
     clientConnected: (client) =>
       tmpClients = []
@@ -47,8 +41,6 @@ module.exports =
         history:    @history
         clients:    tmpClients
 
-      console.log 'client'
-      console.log client
       if client.clientType isnt 'simple' and client.username isnt 'browser'
         @server.sendToOtherClients @clients, client,
           type:     types.clientConnected
@@ -62,36 +54,6 @@ module.exports =
       @server.sendToAllClients @clients,
         type:     types.clientDisconnected
         clientId: client.id
-
-    # # TODO: check wether the state is really allowed
-    # checkState: (state, client, clientState) ->
-    #   # return false if state.length != clientState.length
-    #
-    #   for i in [0..(clientState.length)]
-    #     if state[i] > clientState[i]
-    #       # if !(i == client.id && state[i] + 1 == clientState[i])
-    #       return false
-    #   return true
-
-    getConflictingTransforms: (client, transform) =>
-      # console.log 1
-      return [] if @history.length <= 0
-      # console.log 2
-      newTranforms = []
-      for i in [@history.length - 1..0]
-        # console.log 3
-        t = @history[i]
-        # console.log 4
-        st = new State t.state
-        # console.log 5
-        if transform.state.happendBefore st
-          console.log "transform.state happendBefore st"
-          console.log transform.state
-          console.log st
-          newTranforms.push t
-        # console.log 6
-      # console.log 7
-      return newTranforms
 
     transformRecieved: (client, transform) =>
       transform.state = new State transform.state

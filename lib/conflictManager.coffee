@@ -1,5 +1,6 @@
 events = require 'events'
 types = require './types'
+State = require './state'
 
 module.exports =
   class ConflictManager
@@ -10,6 +11,23 @@ module.exports =
       for c in conflicts
         if transform.type is types.textChange
           @handleTextChangeConflicts c, transform
+
+    getConflictingTransforms: (history, clientId, transform) ->
+      return [] if history.length <= 0
+      newTranforms = []
+      for i in [history.length - 1..0]
+        t = history[i]
+        console.log 't'
+        console.log t
+        st = t.state
+        if transform.state.conflictingWith st, clientId
+          console.log "transform.state happendBefore st"
+          console.log transform.state
+          console.log st
+          newTranforms.push t
+        else
+          break
+      return newTranforms
 
     moveRow: (transform, count) ->
       transform.oldRange.start += count
