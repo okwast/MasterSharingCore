@@ -21,6 +21,7 @@ module.exports =
       # TODO outsource this to types
       @net.on types.connected,    @connectedToServer
       @net.on 'transform',        @handleTransform
+      @net.on types.acknowledge,  @acknowledge
       @net.on 'error',            @handleError
       @net.on 'end',              @handleEnd
       @net.on 'serverDown',       @handleServerDown
@@ -81,14 +82,15 @@ module.exports =
       @emit types.initialized
 
     acknowledge: (ack) =>
-      toRemove = []
-      for t in @notAcked
-        st = new State t.state
-        if st.happendBefore ack.state
-          toRemove.push t
-      for t in toRemove
-        index = @notAcked.indexOf(t)
-        @notAcked.splice(index, 1) unless index is -1
+      for i in [0...@notAcked.length]
+        if @notAcked[i].state.get @id is ack[@id]
+          index = i
+          break
+
+      if index isnt -1
+        t = @notAcked.splice(index, 1)
+        t = t[0]
+        t.state = new State ack
         @history.push t
 
     textChanged: (transform) ->

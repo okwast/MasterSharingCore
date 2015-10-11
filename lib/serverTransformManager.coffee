@@ -57,15 +57,11 @@ module.exports =
 
     transformRecieved: (client, transform) =>
       transform.state = new State transform.state
-      # console.log "transformRecieved"
-      # console.log transform
+
       if transform.type is types.textChange
-        conflicts = @getConflictingTransforms client, transform
+        conflicts = @conflictManager.getConflictingTransforms @history,
+        client, transform
         if conflicts? and conflicts.length > 0
-          console.log "Conflicts"
-          console.log conflicts
-          console.log transform
-          console.log @history
           @conflictManager.handleConflicts conflicts, transform
 
         transform.state = transform.state.list
@@ -73,6 +69,6 @@ module.exports =
 
         @server.sendToClient client,
           type:  types.acknowledge
-          state: transform
+          state: transform.state
 
       @server.sendToOtherClients @clients, client, transform
