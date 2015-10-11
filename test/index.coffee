@@ -216,31 +216,76 @@ describe 'solve conflicts', ->
     transform.newRange.start.row.should.equal 2
     transform.newRange.end.row.should.equal 3
 
-  it 'fix co', ->
+  it 'fix column - insert', ->
     conflict =
       oldRange:
         start:
-          row:  0
+          row:      0
+          column:   0
         end:
-          row:  0
+          row:      0
+          column:   5
       newRange:
         start:
-          row:  0
+          row:      0
+          column:   0
         end:
-          row:  1
+          row:      0
+          column:   10
     transform =
       oldRange:
         start:
-          row:  1
+          row:      0
+          column:   10
         end:
-          row:  2
+          row:      0
+          column:   15
       newRange:
         start:
-          row:  1
+          row:      0
+          column:   10
         end:
-          row:  2
-    cm.fixRow conflict, transform
-    transform.oldRange.start.row.should.equal 2
-    transform.oldRange.end.row.should.equal 3
-    transform.newRange.start.row.should.equal 2
-    transform.newRange.end.row.should.equal 3
+          row:      0
+          column:   20
+    cm.fixCol conflict, transform
+    transform.oldRange.start.column.should.equal  15
+    transform.oldRange.end.column.should.equal    20
+    transform.newRange.start.column.should.equal  15
+    transform.newRange.end.column.should.equal    25
+
+  it 'fix column - delete', ->
+    conflict =
+      oldRange:
+        start:
+          row:      0
+          column:   0
+        end:
+          row:      0
+          column:   10
+      newRange:
+        start:
+          row:      0
+          column:   0
+        end:
+          row:      0
+          column:   5
+    transform =
+      oldRange:
+        start:
+          row:      0
+          column:   10
+        end:
+          row:      0
+          column:   15
+      newRange:
+        start:
+          row:      0
+          column:   10
+        end:
+          row:      0
+          column:   20
+    cm.fixCol conflict, transform
+    transform.oldRange.start.column.should.equal  5
+    transform.oldRange.end.column.should.equal    10
+    transform.newRange.start.column.should.equal  5
+    transform.newRange.end.column.should.equal    15

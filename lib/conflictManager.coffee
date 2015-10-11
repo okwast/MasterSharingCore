@@ -17,13 +17,8 @@ module.exports =
       newTranforms = []
       for i in [history.length - 1..0]
         t = history[i]
-        console.log 't'
-        console.log t
         st = t.state
         if transform.state.conflictingWith st, clientId
-          console.log "transform.state happendBefore st"
-          console.log transform.state
-          console.log st
           newTranforms.push t
         else
           break
@@ -38,41 +33,49 @@ module.exports =
     difRow: (transform) ->
       oldRow = transform.oldRange.end.row - transform.oldRange.start.row
       newRow = transform.newRange.end.row - transform.newRange.start.row
-      newRow - oldRow
+      return newRow - oldRow
 
     checkRowConflict: (c, transform) ->
       if c.oldRange.start.row < transform.oldRange.start.row
         return true
       else
-        if c.oldRange.start.row is transform.start.row and
-           c.oldRange.start.col <  transform.start.col
+        if c.oldRange.start.row is transform.oldRange.start.row and
+           c.oldRange.start.column <  transform.oldRange.start.column
           return true
         else
           return false
 
     fixRow: (c, transform) =>
-      if @checkRowConflict c, transform
-        difRow = @difRow c
-        @moveRow transform, difRow if difRow isnt 0
+      difRow = @difRow c
+      @moveRow transform, difRow if difRow isnt 0
+
+    moveCol: (transform, count, startAndEnd) ->
+      transform.oldRange.start.column += count
+      transform.oldRange.end.column   += count if startAndEnd
+      transform.newRange.start.column += count
+      transform.newRange.end.column   += count if startAndEnd
+
+    difCol: (transform) ->
+      return transform.newRange.end.column - transform.oldRange.end.column
+
+    checkColConflict: (c, transform) ->
+      if c.newRange.end.row is transform.oldRange.start.row and
+         c.newRange.end.column <  transform.oldRange.start.column
+        return true
+      else
+        return false
 
     fixCol: (c, transform) ->
-      difCol = c.oldRange.end.column - c.newRange.end.column
+      difCol = @difCol c
 
-      transform.oldRange.start.column += difCol
+      hasLineBreaks = transform.newRange.end.row -
+        transform.newRange.start.row
 
-      if transform.oldRange.start.row == transform.oldRange.end.row
-        transform.oldRange.end.column += difCol
-
-      if transform.oldRange.start.row == transform.newRange.start.row
-        transform.newRange.start.column += difCol
-
-      if transform.oldRange.start.row == transform.newRange.end.row
-        transform.newRange.end.column += difCol
+      @moveCol transform, difCol, !hasLineBreaks
 
     handleTextChangeConflicts: (c, transform) =>
-      if c.oldRange.start.row < transform.oldRange.start.row
+      if @checkRowConflict c, transform
         @fixRow c, transform
-      else if c.oldRange.start.row == transform.oldRange.start.row
-        if c.oldRange.start.column <= transform.oldRange.start.column
-          @fixRow c, transform
+
+        if @checkColConflict c, transform
           @fixCol c, transform
