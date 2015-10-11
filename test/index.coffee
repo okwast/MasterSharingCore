@@ -62,8 +62,10 @@ describe 'States', ->
     expect(state1.conflictingWith state2, 2).to.be.true
 
 
-describe 'Conflicts', ->
+describe 'finding conflicts', ->
+
   cm = new conflictManager()
+
   it 'no list, no conflicts', ->
     cm.getConflictingTransforms([]).length.should.equal 0
 
@@ -102,3 +104,143 @@ describe 'Conflicts', ->
     transform = {}
     transform.state = new stateClass [2,1,1]
     cm.getConflictingTransforms(history, 1, transform).length.should.equal 2
+
+describe 'solve conflicts', ->
+
+  cm = new conflictManager()
+
+  it '0 difference in rows', ->
+    transform =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  0
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  0
+    cm.difRow(transform).should.equal 0
+
+  it '1 difference in rows', ->
+    transform =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  0
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  1
+    cm.difRow(transform).should.equal 1
+
+  it '-1 difference in rows', ->
+    transform =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  1
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  0
+    cm.difRow(transform).should.equal -1
+
+  it 'move rows down', ->
+    transform =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  1
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  0
+    cm.moveRow transform, 1
+    transform.oldRange.start.row.should.equal 1
+    transform.oldRange.end.row.should.equal   2
+    transform.newRange.start.row.should.equal 1
+    transform.newRange.end.row.should.equal   1
+
+  it 'move rows up', ->
+    transform =
+      oldRange:
+        start:
+          row:  1
+        end:
+          row:  2
+      newRange:
+        start:
+          row:  3
+        end:
+          row:  4
+    cm.moveRow transform, -1
+    transform.oldRange.start.row.should.equal 0
+    transform.oldRange.end.row.should.equal   1
+    transform.newRange.start.row.should.equal 2
+    transform.newRange.end.row.should.equal   3
+
+  it 'fix rows', ->
+    conflict =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  0
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  1
+    transform =
+      oldRange:
+        start:
+          row:  1
+        end:
+          row:  2
+      newRange:
+        start:
+          row:  1
+        end:
+          row:  2
+    cm.fixRow conflict, transform
+    transform.oldRange.start.row.should.equal 2
+    transform.oldRange.end.row.should.equal 3
+    transform.newRange.start.row.should.equal 2
+    transform.newRange.end.row.should.equal 3
+
+  it 'fix co', ->
+    conflict =
+      oldRange:
+        start:
+          row:  0
+        end:
+          row:  0
+      newRange:
+        start:
+          row:  0
+        end:
+          row:  1
+    transform =
+      oldRange:
+        start:
+          row:  1
+        end:
+          row:  2
+      newRange:
+        start:
+          row:  1
+        end:
+          row:  2
+    cm.fixRow conflict, transform
+    transform.oldRange.start.row.should.equal 2
+    transform.oldRange.end.row.should.equal 3
+    transform.newRange.start.row.should.equal 2
+    transform.newRange.end.row.should.equal 3

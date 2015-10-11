@@ -30,19 +30,30 @@ module.exports =
       return newTranforms
 
     moveRow: (transform, count) ->
-      transform.oldRange.start += count
-      transform.oldRange.end   += count
-      transform.newRange.start += count
-      transform.newRange.end   += count
+      transform.oldRange.start.row += count
+      transform.oldRange.end.row   += count
+      transform.newRange.start.row += count
+      transform.newRange.end.row   += count
 
     difRow: (transform) ->
       oldRow = transform.oldRange.end.row - transform.oldRange.start.row
       newRow = transform.newRange.end.row - transform.newRange.start.row
       newRow - oldRow
 
+    checkRowConflict: (c, transform) ->
+      if c.oldRange.start.row < transform.oldRange.start.row
+        return true
+      else
+        if c.oldRange.start.row is transform.start.row and
+           c.oldRange.start.col <  transform.start.col
+          return true
+        else
+          return false
+
     fixRow: (c, transform) =>
-      difRow = @difRow c
-      @moveRow transform, difRow if difRow isnt 0
+      if @checkRowConflict c, transform
+        difRow = @difRow c
+        @moveRow transform, difRow if difRow isnt 0
 
     fixCol: (c, transform) ->
       difCol = c.oldRange.end.column - c.newRange.end.column
