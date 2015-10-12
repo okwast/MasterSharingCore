@@ -83,7 +83,7 @@ module.exports =
 
     acknowledge: (ack) =>
       for i in [0...@notAcked.length]
-        if @notAcked[i].state.get @id is ack[@id]
+        if @notAcked[i].state[@id] is ack[@id]
           index = i
           break
 
