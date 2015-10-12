@@ -1,7 +1,7 @@
 clientTM = require './lib/clientTransformManager'
 serverTM = require './lib/serverTransformManager'
 
-module.export =
+module.exports =
 
   createServer: (port) ->
     new serverTM false, port
