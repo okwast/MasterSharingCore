@@ -3,7 +3,7 @@ serverTM = require './lib/serverTransformManager'
 
 module.export =
 
-  createServer: ->
+  createServer: (port) ->
     new serverTM false, port
 
   createClient: (url, name, color) ->
