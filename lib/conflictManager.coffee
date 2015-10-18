@@ -18,6 +18,8 @@ module.exports =
       for i in [history.length - 1..0]
         t = history[i]
         st = t.state
+        if !state.list?
+          st = new State st
         if transform.state.conflictingWith st, clientId
           newTranforms.push t
         else

@@ -1,6 +1,6 @@
 module.exports =
   class State
-    list:  undefined
+    list:  []
 
     constructor: (list) ->
       if list?
