@@ -11,7 +11,7 @@ module.exports =
     netData:    ""
 
     constructor: (@host) ->
-      @socket = socketio @host
+      @socket = socketio @host, {reconnection: false}
 
       @socket.on 'connect', =>
         console.log "connect"
