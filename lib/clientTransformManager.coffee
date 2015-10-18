@@ -90,7 +90,7 @@ module.exports =
       if index isnt -1
         t = @notAcked.splice(index, 1)
         t = t[0]
-        t.state = new State ack
+        t.state = ack
         @history.push t
 
     textChanged: (transform) ->
