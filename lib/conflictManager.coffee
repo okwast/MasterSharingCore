@@ -59,11 +59,9 @@ module.exports =
       return transform.newRange.end.column - transform.oldRange.end.column
 
     checkColConflict: (c, transform) ->
-      if c.newRange.end.row is transform.oldRange.start.row and
-         c.newRange.end.column <  transform.oldRange.start.column
-        return true
-      else
-        return false
+      return c.newRange.end.row is transform.oldRange.start.row and
+             c.newRange.end.column <  transform.oldRange.start.column
+
 
     fixCol: (c, transform) ->
       difCol = @difCol c

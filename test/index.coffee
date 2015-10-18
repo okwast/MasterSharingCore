@@ -54,9 +54,14 @@ describe 'States', ->
   it 'in conflict', ->
     state1 = new stateClass([1, 1, 1])
     state2 = new stateClass([1, 2, 1])
-    expect(state1.conflictingWith state2).to.be.true
+    expect(state1.conflictingWith state2, 1).to.be.true
 
   it 'in conflict 2', ->
+    state1 = new stateClass([1, 1, 1])
+    state2 = new stateClass([1, 1, 1])
+    expect(state1.conflictingWith state2, 1).to.be.true
+
+  it 'in conflict 3', ->
     state1 = new stateClass([1, 1, 2])
     state2 = new stateClass([2, 1, 1])
     expect(state1.conflictingWith state2, 2).to.be.true
@@ -91,7 +96,7 @@ describe 'finding conflicts', ->
     console.log history
     transform = {}
     transform.state = new stateClass [2,2,1]
-    cm.getConflictingTransforms(history, 1, transform).length.should.equal 1
+    cm.getConflictingTransforms(history, 0, transform).length.should.equal 1
 
   it 'two conflicts', ->
     history = [
@@ -103,7 +108,7 @@ describe 'finding conflicts', ->
     console.log history
     transform = {}
     transform.state = new stateClass [2,1,1]
-    cm.getConflictingTransforms(history, 1, transform).length.should.equal 2
+    cm.getConflictingTransforms(history, 0, transform).length.should.equal 2
 
 describe 'solve conflicts', ->
 

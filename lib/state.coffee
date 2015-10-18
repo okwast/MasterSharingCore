@@ -20,8 +20,8 @@ module.exports =
     get: (id) =>
       @list[id]
 
-    set: (id, state) =>
-      @list[id] = state
+    set: (id, clientState) =>
+      @list[id] = clientState
 
     conflictingWith: (state, id) =>
       list2 = state.list
@@ -29,7 +29,7 @@ module.exports =
       for i in [0...@list.length]
         if i is id
           return true if !(@list[i]? and list2[i]?)
-          return true if @list[i] < list2[i]
+          return true if @list[i] - 1 isnt list2[i]
         else
           if @list[i]? and list2[i]?
             return true if @list[i] < list2[i]
