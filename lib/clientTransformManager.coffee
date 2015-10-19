@@ -3,6 +3,10 @@ events = require 'events'
 types = require './types'
 State = require './state'
 
+# This is the client version of the transform manager.
+# It creates an socket connection to the server and
+# registers callbacks for events.
+#
 module.exports =
   class ClientTransformManager extends events.EventEmitter
     initialized:  false
@@ -39,7 +43,8 @@ module.exports =
       transform.state = @state.list if @state?
       @net.send transform
 
-    #TODO clientDisconnected + handleConflicts
+    # Handles an incoming transform
+    # For each type there is an individual function
     handleTransform: (transform) =>
       transform.state = new State transform.state
       switch transform.type

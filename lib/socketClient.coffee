@@ -10,11 +10,18 @@ module.exports =
     port:       undefined
     netData:    ""
 
+    # Creates a Socket.IO-Client and connects to the
+    # server at the given address
+    # Also emits the following events
+    # 1. connected
+    # 2. end
+    # 3. transform
+    # 4. serverDown
+    # 5. error
     constructor: (@host) ->
       @socket = socketio @host, {reconnection: false}
 
       @socket.on 'connect', =>
-        console.log "connect"
         @emit types.connected
 
       @socket.on 'data', (transform) =>

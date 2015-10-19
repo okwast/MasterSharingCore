@@ -13,6 +13,9 @@ module.exports =
     port:       undefined
     sockets:    []
 
+    # Creates an HTTP-Server and creates an Socket.IO-Server with it
+    # A static HTML file is send, when a browser sends a request
+    # Also the scripts of codemirror are send, when requested
     constructor: (@port) ->
 
       @server = http.createServer (req, res) ->
@@ -35,8 +38,10 @@ module.exports =
             res.write data, 'utf8'
             res.end()
 
+      # Starting server
       @server.listen @port
 
+      # Creating Socket.IO-Server
       @io = socketio @server
       @io.on 'connection', (socket) =>
         console.log "a ws connection"
@@ -45,6 +50,10 @@ module.exports =
 
         socket.on 'error', (err) ->
           console.log err
+
+        socket.on 'disconnect', ->
+          console.log 'disconnect'
+          @emit 'clientDisconnected'
 
         socket.on 'data', (transform) =>
           switch transform.type
@@ -64,6 +73,9 @@ module.exports =
               console.log "transform"
               @emit('transform', socket, transform)
 
+    # Sends a message to the client of the socket.
+    # It also sets the state to the list of the state,
+    # to allow standard serialization
     sendToClient: (socket, data) ->
       if data.state? and data.state.list?
         data.state = data.state.list
@@ -72,6 +84,7 @@ module.exports =
     sendToAllClients: (sockets, data) =>
       @sendToClient socket, data for socket in sockets
 
+    # Sends data to all clients, but the client of the given socket
     sendToOtherClients: (sockets, socket, data) =>
       @sendToClient s, data for s in sockets when s isnt socket
 

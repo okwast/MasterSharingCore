@@ -26,17 +26,22 @@ module.exports =
           break
       return newTranforms
 
+    # Changes the rows in a transform
     moveRow: (transform, count) ->
       transform.oldRange.start.row += count
       transform.oldRange.end.row   += count
       transform.newRange.start.row += count
       transform.newRange.end.row   += count
 
+    # Calculates the difference in the number of rows
+    # of the new text and the old text
     difRow: (transform) ->
       oldRow = transform.oldRange.end.row - transform.oldRange.start.row
       newRow = transform.newRange.end.row - transform.newRange.start.row
       return newRow - oldRow
 
+    # Checks wether there is a conflict,
+    # because of the rows
     checkRowConflict: (c, transform) ->
       if c.oldRange.start.row < transform.oldRange.start.row
         return true
@@ -51,6 +56,7 @@ module.exports =
       difRow = @difRow c
       @moveRow transform, difRow if difRow isnt 0
 
+    # Changes the column entries in an transform
     moveCol: (transform, count, startAndEnd) ->
       transform.oldRange.start.column += count
       transform.oldRange.end.column   += count if startAndEnd
@@ -60,11 +66,13 @@ module.exports =
     difCol: (transform) ->
       return transform.newRange.end.column - transform.oldRange.end.column
 
+    # Checks wether there is a conflict,
+    # because of the columns
     checkColConflict: (c, transform) ->
       return c.newRange.end.row is transform.oldRange.start.row and
              c.newRange.end.column <  transform.oldRange.start.column
 
-
+    # Fixes column problems
     fixCol: (c, transform) ->
       difCol = @difCol c
 
@@ -73,6 +81,7 @@ module.exports =
 
       @moveCol transform, difCol, !hasLineBreaks
 
+    # Handles conflicts of textchange transforms
     handleTextChangeConflicts: (c, transform) =>
       if @checkRowConflict c, transform
         @fixRow c, transform

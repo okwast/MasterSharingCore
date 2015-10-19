@@ -1,3 +1,5 @@
+# Here are many constants defined, to prevent spelling mistakes
+
 module.exports =
   textChange:         "textChange"
   insertion:          "insertion"

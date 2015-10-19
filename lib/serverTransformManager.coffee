@@ -14,6 +14,9 @@ module.exports =
     state:            undefined
     history:          []
 
+    # Constructs a transform manager for the server
+    # It gets the port and creates an socket server for that port
+    # Also registers for events of the socket server
     constructor: (port) ->
       @server           = new netServer port
       @conflictManager  = new conflictManager()
@@ -25,6 +28,10 @@ module.exports =
       @server.on    'transform',            @transformRecieved
       @server.on    'error',                console.log
 
+    # Gets called, when a clients connects
+    # Inserts the client into the current state vector
+    # Sends the client his id, the current state and the history
+    # If it is not a simple client, the other clients get notified
     clientConnected: (client) =>
       tmpClients = []
       for c in @clients
@@ -47,6 +54,8 @@ module.exports =
           client: {id: client.id, color: client.color}
       @clients.push client
 
+    # Removes the client from the state vector
+    # and notifies other clients
     clientDisconnected: (client) =>
       i = @clients.indexOf(client)
       @clients.splice i, 1 unless i is -1
@@ -55,6 +64,11 @@ module.exports =
         type:     types.clientDisconnected
         clientId: client.id
 
+    # Handles incomming transforms
+    # Creates a state of the state list
+    # Checks for conflicts and solves them
+    # Notifies other clients
+    # Sends an acknowledge to the client
     transformRecieved: (client, transform) =>
       transform.state = new State transform.state
 
