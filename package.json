@@ -1,6 +1,6 @@
 {
   "name": "mastersharingcore",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "This is the core of the MasterSharing System for distributed group programming.",
   "main": "main.coffee",
   "scripts": {
