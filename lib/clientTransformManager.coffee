@@ -126,9 +126,5 @@ module.exports =
 
     clientLeft: (transform) ->
       console.log "Client left"
-      for c in @clients
-        if c.id is transform.clientId
-          i = @clients.indexOf(c)
-      @clients.splice(i, 1) unless i is -1
       @emit types.userLeft,
         clientId: transform.client.id

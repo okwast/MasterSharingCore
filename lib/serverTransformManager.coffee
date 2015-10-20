@@ -57,9 +57,6 @@ module.exports =
     # Removes the client from the state vector
     # and notifies other clients
     clientDisconnected: (client) =>
-      i = @clients.indexOf(client)
-      @clients.splice i, 1 unless i is -1
-      @state.remove client.id
       @server.sendToAllClients @clients,
         type:     types.clientDisconnected
         clientId: client.id
