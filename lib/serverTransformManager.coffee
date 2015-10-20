@@ -4,6 +4,7 @@ types = require './types'
 conflictManager = require './conflictManager'
 State = require './state'
 
+# This class handles transforms send from clients.
 module.exports =
   class ServerTransformManager extends events.EventEmitter
     standalone:       undefined
@@ -22,11 +23,11 @@ module.exports =
       @conflictManager  = new conflictManager()
       @state            = new State()
 
-      @server.on    'initial',                  @clientConnected
-      @server.on    'clientConnected',          @clientConnected
-      @server.on    types.clientDisconnected,   @clientDisconnected
-      @server.on    'transform',                @transformRecieved
-      @server.on    'error',                    console.log
+      @server.on 'initial',                  @clientConnected
+      @server.on 'clientConnected',          @clientConnected
+      @server.on types.clientDisconnected,   @clientDisconnected
+      @server.on 'transform',                @transformRecieved
+      @server.on 'error',                    console.log
 
     # Gets called, when a clients connects
     # Inserts the client into the current state vector
@@ -48,16 +49,21 @@ module.exports =
         history:    @history
         clients:    tmpClients
 
+      # If the client is of type simple other clients do not
+      # need to be informed.
+      # An example for an simple client is the readonly browser client
       if client.clientType isnt 'simple' and client.username isnt 'browser'
         @server.sendToOtherClients @clients, client,
           type:     types.clientConnected
-          client: {id: client.id, color: client.color}
+          client:
+            id:         client.id
+            username:   client.username
+            color:      client.color
       @clients.push client
 
     # Removes the client from the state vector
     # and notifies other clients
     clientDisconnected: (client) =>
-      console.log 'clientDisconnected - serverTransformManager'
       @server.sendToAllClients @clients,
         type:     types.userLeft
         clientId: client

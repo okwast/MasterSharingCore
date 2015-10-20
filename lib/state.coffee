@@ -1,7 +1,6 @@
 # This is the class of the statevector
 # The variable list is a list of number values.
 # Every number represents the state of the client with that index as id
-
 module.exports =
   class State
     list:  []

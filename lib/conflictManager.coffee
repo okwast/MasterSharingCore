@@ -2,6 +2,8 @@ events = require 'events'
 types = require './types'
 State = require './state'
 
+# This is a handler for conflicts.
+# Conflicts are identified and solved.
 module.exports =
   class ConflictManager
 
@@ -12,6 +14,9 @@ module.exports =
         if transform.type is types.textChange
           @handleTextChangeConflicts c, transform
 
+    # Gets a history, a client id and a transform
+    # This function gets all the transforms beeing in conflict with
+    # the given transform.
     getConflictingTransforms: (history, clientId, transform) ->
       return [] if history.length <= 0
       newTranforms = []

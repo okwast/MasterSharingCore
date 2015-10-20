@@ -2,6 +2,7 @@ socketio = require 'socket.io-client'
 events = require 'events'
 types = require './types'
 
+# This class creates an Socket.IO client and connects to the server.
 module.exports =
   class Client extends events.EventEmitter
     socket:     undefined

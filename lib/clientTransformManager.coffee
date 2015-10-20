@@ -22,13 +22,12 @@ module.exports =
     constructor: (@host, @username, @color) ->
       @net = new netClient @host
 
-      # TODO outsource this to types
-      @net.on types.connected,    @connectedToServer
-      @net.on 'transform',        @handleTransform
-      @net.on types.acknowledge,  @acknowledge
-      @net.on 'error',            @handleError
-      @net.on 'end',              @handleEnd
-      @net.on 'serverDown',       @handleServerDown
+      @net.on types.connected,        @connectedToServer
+      @net.on types.transform,        @handleTransform
+      @net.on types.acknowledge,      @acknowledge
+      @net.on types.error,            @handleError
+      @net.on types.end,              @handleEnd
+      @net.on types.serverDown,       @handleServerDown
 
     connectedToServer: =>
       @sendToServer
@@ -70,7 +69,6 @@ module.exports =
       @emit 'end'
 
     handleServerDown: ->
-      #TODO implement + fat arrow
 
     initialize: (transform) =>
       @emit types.clear
@@ -92,7 +90,7 @@ module.exports =
           index = i
           break
 
-      if index isnt -1
+      if index? and index isnt -1
         t = @notAcked.splice(index, 1)
         t = t[0]
         t.state = ack
@@ -122,9 +120,9 @@ module.exports =
       @state.add transform.client.id
       @emit types.newUser,
         clientId:   transform.client.id
+        username:   transform.username
         color:      transform.client.color
 
     clientLeft: (transform) ->
-      console.log "Client left"
       @emit types.userLeft,
         clientId: transform.client.id

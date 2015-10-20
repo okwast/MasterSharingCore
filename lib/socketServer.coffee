@@ -4,6 +4,8 @@ fs = require 'fs'
 socketio = require 'socket.io'
 types = require './types'
 
+# This class represents the network connection
+# and some low level logic.
 module.exports =
   class Server extends events.EventEmitter
     initial:    false
@@ -18,8 +20,9 @@ module.exports =
     # Also the scripts of codemirror are send, when requested
     constructor: (@port) ->
 
+      # Create a HTTP server that can deliver files to a browser.
+      # The files are neccessary for the codemirror client.
       @server = http.createServer (req, res) ->
-        console.log 'Connection'
         res.writeHead 200, {'Content-Type': 'text/html'}
         if req.url is '/'
           fs.readFile "#{__dirname}/../browser/index.html", (err, data) ->
@@ -44,21 +47,21 @@ module.exports =
       # Creating Socket.IO-Server
       @io = socketio @server
       @io.on 'connection', (socket) =>
-        console.log "a ws connection"
         @sockets.push socket
-        console.log @sockets
 
         socket.on 'error', (err) ->
           console.log err
 
         socket.on 'disconnect', ->
-          console.log 'disconnect'
           @emit types.clientDisconnected, socket.id
 
+        # When a new transform arrives and its type is checked.
+        # When it is a new connection a new ID is created for the client.
+        # Afterwards an event is emitted.
+        # When it is another type of transform an event is emitted.
         socket.on 'data', (transform) =>
           switch transform.type
             when types.connecting
-              console.log "connecting"
               socket.id         = @clientId++
               socket.username   = transform.username
               socket.color      = transform.color
@@ -70,8 +73,7 @@ module.exports =
               else
                 @emit 'clientConnected', socket
             else
-              console.log "transform"
-              @emit('transform', socket, transform)
+              @emit 'transform', socket, transform
 
     # Sends a message to the client of the socket.
     # It also sets the state to the list of the state,
@@ -81,6 +83,7 @@ module.exports =
         data.state = data.state.list
       socket.emit 'data', data
 
+    # Sends a message to all the clients
     sendToAllClients: (sockets, data) =>
       @sendToClient socket, data for socket in sockets
 
