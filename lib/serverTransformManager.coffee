@@ -37,8 +37,9 @@ module.exports =
       tmpClients = []
       for c in @clients
         tmpClients.push
-          id:     c.id
-          color:  c.color
+          id:         c.id
+          username:   c.username
+          color:      c.color
           cursor:
             pos:  c.cursor.pos
       @state.add client.id
