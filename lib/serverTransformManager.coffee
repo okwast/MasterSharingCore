@@ -58,7 +58,7 @@ module.exports =
     # and notifies other clients
     clientDisconnected: (client) =>
       @server.sendToAllClients @clients,
-        type:     types.clientDisconnected
+        type:     types.userLeft
         clientId: client.id
 
     # Handles incomming transforms

@@ -56,7 +56,7 @@ module.exports =
           @changeSelection transform
         when types.clientConnected
           @newClient transform
-        when types.clientDisconnected
+        when types.userLeft
           @clientLeft transform
         when types.initialize
           @initialize transform
