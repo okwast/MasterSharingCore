@@ -19,6 +19,7 @@ module.exports =
     username:     undefined
     color:        undefined
 
+    # Registers callbacks for events
     constructor: (@host, @username, @color) ->
       @net = new netClient @host
 
@@ -29,12 +30,15 @@ module.exports =
       @net.on types.end,              @handleEnd
       @net.on types.serverDown,       @handleServerDown
 
+    # Logically register as sharing client
     connectedToServer: =>
       @sendToServer
         type:     types.connecting
         username: @username
         color:    @color
 
+    # Send a message to the server and manage the state.
+    # If the connection is initialized, there is no state to update.
     sendToServer: (transform) =>
       @state.inc @id if @state? and transform.type isnt types.connect
       transform.id = @id
@@ -68,8 +72,13 @@ module.exports =
     handleEnd: =>
       @emit 'end'
 
-    handleServerDown: ->
+    handleServerDown: =>
+      @emit 'error', 'Server down'
 
+    # The server has send information for initialization.
+    # The state and the client id have been send and will be set.
+    # For each client already sharing a new cursor is created.
+    # Emit an event for signaling the connection is established.
     initialize: (transform) =>
       @emit types.clear
       @id       = transform.clientId
@@ -84,6 +93,7 @@ module.exports =
       initialized = true
       @emit types.initialized
 
+    # Manage acknowledges
     acknowledge: (ack) =>
       for i in [0...@notAcked.length]
         if @notAcked[i].state[@id] is ack[@id]
@@ -105,24 +115,30 @@ module.exports =
     selectionChanged: (transform) ->
       @sendToServer transform
 
+    # An textChange event has been sent by the server.
+    # The text needs to be changed now.
     changeText: (transform) ->
       @state.set transform.id, transform.state.get transform.id
       @emit types.textChange, transform
 
+    # Update the cursor of a client.
     updateCursor: (transform) ->
       @emit types.updateCursor, transform
 
+    # Update the selection of a client.
     changeSelection: (transform) ->
       @emit types.selectionChanged, transform
 
+    # A new client has connected
     newClient: (transform) ->
       @clients.push transform.client
       @state.add transform.client.id
       @emit types.newUser,
         clientId:   transform.client.id
-        username:   transform.username
+        username:   transform.client.username
         color:      transform.client.color
 
+    # A client left the session
     clientLeft: (transform) ->
       @emit types.userLeft,
         clientId: transform.client.id
