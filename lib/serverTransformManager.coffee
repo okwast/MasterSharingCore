@@ -22,11 +22,11 @@ module.exports =
       @conflictManager  = new conflictManager()
       @state            = new State()
 
-      @server.on    'initial',              @clientConnected
-      @server.on    'clientConnected',      @clientConnected
-      @server.on    'clientDisconnected',   @clientDisconnected
-      @server.on    'transform',            @transformRecieved
-      @server.on    'error',                console.log
+      @server.on    'initial',                  @clientConnected
+      @server.on    'clientConnected',          @clientConnected
+      @server.on    types.clientDisconnected,   @clientDisconnected
+      @server.on    'transform',                @transformRecieved
+      @server.on    'error',                    console.log
 
     # Gets called, when a clients connects
     # Inserts the client into the current state vector
@@ -57,6 +57,7 @@ module.exports =
     # Removes the client from the state vector
     # and notifies other clients
     clientDisconnected: (client) =>
+      console.log 'clientDisconnected - serverTransformManager'
       @server.sendToAllClients @clients,
         type:     types.userLeft
         clientId: client.id
