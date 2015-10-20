@@ -89,6 +89,7 @@ module.exports =
       for client in @clients
         @emit types.newUser,
           clientId: client.id
+          username: client.username
           color:    client.color
       initialized = true
       @emit types.initialized
