@@ -53,7 +53,7 @@ module.exports =
 
         socket.on 'disconnect', ->
           console.log 'disconnect'
-          @emit types.clientDisconnected, socket
+          @emit types.clientDisconnected, socket.id
 
         socket.on 'data', (transform) =>
           switch transform.type

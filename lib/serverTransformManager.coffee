@@ -60,7 +60,7 @@ module.exports =
       console.log 'clientDisconnected - serverTransformManager'
       @server.sendToAllClients @clients,
         type:     types.userLeft
-        clientId: client.id
+        clientId: client
 
     # Handles incomming transforms
     # Creates a state of the state list
