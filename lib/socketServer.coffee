@@ -90,4 +90,3 @@ module.exports =
     # Sends data to all clients, but the client of the given socket
     sendToOtherClients: (sockets, socket, data) =>
       @sendToClient s, data for s in sockets when s isnt socket
-

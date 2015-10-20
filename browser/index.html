@@ -14,20 +14,24 @@
             readOnly: true
         });
 
+        // Change the text when a transfrom arrives.
         changeText = function(data) {
           var fro = {line: data.oldRange.start.row, ch: data.oldRange.start.column};
           var to   = {line: data.oldRange.end.row, ch: data.oldRange.end.column};
           editor.replaceRange(data.newText, fro, to);
         }
 
+        // Create a Socket.IO connection
         var socket = io.connect();
 
+        // Initialize the connection to the server.
         socket.on('connect', function() {
           socket.emit('data', {type: 'connecting', clientType: 'simple', username: 'browser', color: 'white'})
         });
 
+        // When a transform gets send from the server,
+        // the text needs to be changed.
         socket.on('data', function(data){
-          console.log(data);
           if(data.type == 'textChange') {
             changeText(data);
           }

@@ -26,6 +26,8 @@ module.exports =
     set: (id, clientState) =>
       @list[id] = clientState
 
+    # This function gets called with another state and an id.
+    # It then checks, wether there is a conflict or not.
     conflictingWith: (state, id) =>
       list2 = state.list
       return true if @list.length isnt list2.length
@@ -40,6 +42,7 @@ module.exports =
             return true if @list[i]? or list2[i]?
       return false
 
+    # Checks if this state is a direct follower of the given state.
     directFollowerOf: (state, id) ->
       list2 = state.list
       return false if @list.length isnt list2.length
@@ -54,6 +57,7 @@ module.exports =
             return false if @list[i]? or list2[i]?
       return true
 
+    # Checks wether this and the given state are equal.
     equals: (state) =>
       list2 = state.list
       return false if @list.length isnt list2.length

@@ -30,3 +30,4 @@ To perform the tests of this module, you need to to the following steps.
 
 ## Note
 This package is in early a state of development and should not yet be used in a productive environment.
+Please feel free to have a look at the [code](https://github.com/okwast/MasterSharingCore).
